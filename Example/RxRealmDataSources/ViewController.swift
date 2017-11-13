@@ -28,6 +28,7 @@ class ViewController: UIViewController {
         let dataSource = RxTableViewRealmDataSource<Lap>(cellIdentifier: "Cell", cellType: PersonCell.self) {cell, ip, lap in
             cell.customLabel.text = "\(ip.row). \(lap.text)"
         }
+        dataSource.insertScrollPosition = .bottom
 
         // RxRealm to get Observable<Results>
         let realm = try! Realm(configuration: data.config)

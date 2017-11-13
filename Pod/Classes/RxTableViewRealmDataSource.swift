@@ -32,6 +32,7 @@ import RxRealm
             insert: UITableViewRowAnimation.automatic,
             update: UITableViewRowAnimation.automatic,
             delete: UITableViewRowAnimation.automatic)
+        public var insertScrollPosition: UITableViewScrollPosition?
 
         public var headerTitle: String?
         public var footerTitle: String?
@@ -108,11 +109,26 @@ import RxRealm
                 return
             }
 
+            let insertedPaths = changes.inserted.map(fromRow)
+
             tableView.beginUpdates()
             tableView.deleteRows(at: changes.deleted.map(fromRow), with: rowAnimations.delete)
-            tableView.insertRows(at: changes.inserted.map(fromRow), with: rowAnimations.insert)
+            tableView.insertRows(at: insertedPaths, with: rowAnimations.insert)
             tableView.reloadRows(at: changes.updated.map(fromRow), with: rowAnimations.update)
             tableView.endUpdates()
+
+            if let insertScrollPosition = insertScrollPosition {
+                let scrollPath: IndexPath?
+                switch insertScrollPosition {
+                case .bottom:
+                    scrollPath = insertedPaths.last
+                default:
+                    scrollPath = insertedPaths.first
+                }
+                if let scrollPath = scrollPath {
+                    tableView.scrollToRow(at: scrollPath, at: insertScrollPosition, animated: true)
+                }
+            }
         }
     }
 
